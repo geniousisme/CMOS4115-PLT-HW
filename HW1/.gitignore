@@ -1,9 +1,0 @@
-.git/*
-*.pyc
-*.swp
-*.pdf
-*.txt
-.DS_Store
-test/*
-Proxy/*
-log/*
