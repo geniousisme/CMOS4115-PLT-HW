@@ -6,7 +6,7 @@ rule token =
         | '*'                  { TIMES }
         | '/'                  { DIVIDE }
         | '='                  { ASSIGN }
-        | ','                  { COMMA }
-        | ['0'-'9'] + as lit   { LITERAL(int_of_string lit) }
+        | ','                  { SEQUENCE }
+        | ['0'-'9']+ as lit    { LITERAL(int_of_string lit) }
         | ['a'-'z'] as lit     { VARIABLE(int_of_char lit - 97) }
         | eof                  { EOF }

@@ -1,8 +1,8 @@
 objs = parser.cmo scanner.cmo calc.cmo
 
-all: parser ast.cmi parser.cmi scanner.cmo parser.cmo calc.cmo calc
+all: scanner.ml parser.ml parser.mli ast.cmi parser.cmi scanner.cmo parser.cmo calc.cmo calc
 
-parser:
+parser.ml parser.mli:
 	ocamlyacc parser.mly
 
 %.cmi: %.mli
