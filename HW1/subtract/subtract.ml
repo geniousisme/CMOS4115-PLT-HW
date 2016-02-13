@@ -17,13 +17,15 @@
 let subl lst1 lst2 =
     (* list_to_int: transfer int list into a int number first *)
     let list_to_int lst =
-         List.fold_left (fun a b -> 10 * a + b) 0 lst in
+         List.fold_left (fun a b -> 10 * a + b) 0 lst
+    in
     (* int_to_list: transfer the int number into int list *)
     let rec int_to_list target_length target_int res_list =
         if target_int = 0 && target_length = 0 then 0 :: res_list
         else if target_int < 10 && target_length = 0 then target_int :: res_list
         else if target_int < 10 && target_length > 0 then int_to_list (target_length - 1) 0 (target_int :: res_list)
-        else int_to_list (target_length - 1) (target_int / 10) ((target_int mod 10) :: res_list) in
+        else int_to_list (target_length - 1) (target_int / 10) ((target_int mod 10) :: res_list)
+    in
     (* subtract two int value first, then transfer the int value into list *)
     int_to_list (List.length lst1 - 1) ((list_to_int lst1) - (list_to_int lst2)) []
 ;;
