@@ -25,14 +25,111 @@ rule token = parse
                            else StringMap.add hd ((StringMap.find hd word_map) + 1) word_map) tl
             in  word_count_helper StringMap.empty wordlist
     in
+    (* Build the the count word tuple list function for map fold function *)
+    let count_word_list_generator word count lst = (count, word) :: lst
+    in
     (* Fold the word_count_map to tuple list with count first, word in the second position *)
-    let count_word_list = StringMap.fold
-                                    (fun word count res_lst -> (count, word) :: res_lst) word_count_map []
+    let count_word_list =
+                        StringMap.fold count_word_list_generator word_count_map []
     in
     (* Sort the count_word_list *)
     let wordcounts =
         List.sort (fun (c1, _) (c2, _) -> Pervasives.compare c2 c1) count_word_list
     in
+    (* Make the specifc print function for tuple list *)
+    let print_count_word_tuple tuple = match tuple with
+        (count, word) -> print_endline (string_of_int(count) ^ " " ^ word)
+    in
     (* Print out all results with assigned format *)
-    List.iter (fun count_word_tuple -> print_endline (string_of_int(fst count_word_tuple) ^ " " ^ (snd count_word_tuple))) wordcounts
+    List.iter print_count_word_tuple wordcounts
 }
+
+(*
+I ran following commands to test wordcount program:
+
+$make
+ocamllex wordcount.mll
+4 states, 315 transitions, table size 1284 bytes
+ocamlc -o wordcount wordcount.ml
+./wordcount < wordcount.mll
+28 word
+19 count
+11 map
+10 in
+9 let
+8 list
+7 tuple
+7 the
+7 StringMap
+5 hd
+4 with
+4 token
+4 print
+4 function
+4 c
+3 next
+3 lexbuf
+3 l
+3 helper
+3 Word
+3 EOF
+2 wordlist
+2 wordcounts
+2 tl
+2 string
+2 s
+2 rec
+2 of
+2 match
+2 lst
+2 generator
+2 for
+2 fold
+2 add
+2 Make
+2 List
+2 Build
+1 z
+1 type
+1 to
+1 then
+1 stdin
+1 specifc
+1 sort
+1 second
+1 rule
+1 results
+1 position
+1 parse
+1 out
+1 not
+1 module
+1 mem
+1 iter
+1 int
+1 if
+1 fun
+1 from
+1 format
+1 first
+1 find
+1 eof
+1 endline
+1 empty
+1 else
+1 compare
+1 channel
+1 assigned
+1 as
+1 all
+1 a
+1 Z
+1 String
+1 Sort
+1 Print
+1 Pervasives
+1 Map
+1 Lexing
+1 Fold
+1 A
+*)
