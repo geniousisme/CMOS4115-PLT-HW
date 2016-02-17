@@ -295,3 +295,146 @@ type expr =
   | Asn of int * expr
   | Var of int
 ```
+###Ans:
+---
+
+####calc.ml
+```ocaml
+open Ast
+
+let vars = Array.make 26 0
+let rec eval = function
+    Lit(x) -> x
+    | Binop(e1, op, e2) ->
+        let v1 = eval e1 and v2 = eval e2 in
+            (match op with
+                Add -> v1 + v2
+                | Sub -> v1 - v2
+                | Mul -> v1 * v2
+                | Div -> v1 / v2)
+    | Asn(v, e) ->
+        let res = eval e in
+            vars.(v) <- res; res
+    | Seq(e1, e2) -> ignore (eval e1); eval e2
+    | Var(v) -> vars.(v)
+
+let _ =
+    let lexbuf = Lexing.from_channel stdin in
+    let expr = Parser.expr Scanner.token lexbuf in
+    let result = eval expr in
+    print_endline (string_of_int result)
+```
+
+####ast.mli
+```ocaml
+type operator = Add | Sub | Mul | Div
+
+type expr =
+    Binop of expr * operator * expr
+        | Lit of int
+        | Seq of expr * expr
+        | Asn of int * expr
+        | Var of int
+```
+
+####parser.mly
+```ocaml
+%{ open Ast %}
+
+%token PLUS MINUS TIMES DIVIDE ASSIGN SEQUENCE EOF
+%token <int> LITERAL
+%token <int> VARIABLE
+
+%left  SEQUENCE
+%right ASSIGN
+
+%left PLUS MINUS
+%left TIMES DIVIDE
+
+%start expr
+%type <Ast.expr> expr
+
+%%
+
+expr:
+    expr PLUS expr { Binop($1, Add, $3) }
+    | expr MINUS expr { Binop($1, Sub, $3) }
+    | expr TIMES expr { Binop($1, Mul, $3) }
+    | expr DIVIDE expr { Binop($1, Div, $3) }
+    | expr SEQUENCE expr { Seq($1, $3) }
+    | LITERAL { Lit($1) }
+    | VARIABLE { Var($1) }
+    | VARIABLE ASSIGN expr { Asn($1, $3) }
+
+```
+
+####scanner.mll
+```ocaml
+{ open Parser }
+rule token =
+    parse [' ' '\t' '\r' '\n'] { token lexbuf }
+        | '+'                  { PLUS }
+        | '-'                  { MINUS }
+        | '*'                  { TIMES }
+        | '/'                  { DIVIDE }
+        | '='                  { ASSIGN }
+        | ','                  { SEQUENCE }
+        | ['0'-'9']+ as lit    { LITERAL(int_of_string lit) }
+        | ['a'-'z'] as lit     { VARIABLE(int_of_char lit - 97) }
+        | eof                  { EOF }
+```
+
+####Makefile
+```makefile
+objs = parser.cmo scanner.cmo calc.cmo
+
+all: scanner.ml parser.ml parser.mli ast.cmi parser.cmi scanner.cmo parser.cmo calc.cmo calc
+
+parser.ml parser.mli:
+	ocamlyacc parser.mly
+
+%.cmi: %.mli
+	ocamlc -c $<
+
+%.cmo: %.ml
+	ocamlc -c $<
+
+scanner.ml: scanner.mll
+	ocamllex $<
+
+calc: $(objs)
+	ocamlc -o calc $(objs)
+
+clean:
+	rm -f calc parser.ml parser.mli scanner.ml *.cmo *.cmi
+```
+I ran following command to compile my calculator:
+
+    $ make
+    ocamllex scanner.mll
+    11 states, 271 transitions, table size 1150 bytes
+    ocamlyacc parser.mly
+    ocamlc -c ast.mli
+    ocamlc -c parser.mli
+    ocamlc -c scanner.ml
+    ocamlc -c parser.ml
+    ocamlc -c calc.ml
+    ocamlc -o calc parser.cmo scanner.cmo calc.cmo
+
+I ran following command to test my calc execution file
+
+    ./calc
+    a = b = 3, b = b + 3, a *b + 2
+    20
+
+    ./calc
+    2 + 100 - 10
+    92
+
+    ./calc
+    a = b = c = 4, a = b + c, a / c + b * b
+    18
+
+    ./calc
+    a = b = 10, c = 100, a + b - c
+    -80
