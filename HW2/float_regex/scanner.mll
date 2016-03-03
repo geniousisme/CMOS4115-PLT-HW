@@ -10,12 +10,19 @@
 	5. fraction e|E int (ex. 7.823E5, 1.2e4, 1e5)
 *)
 
+(* digit: represent the digit number *)
 let digit = ['0'-'9']
+
+(* exponent: represent the e & E cases *)
 let exponent = ['e' 'E']
+
+(* operator: represent the + - symbol cases *)
 let operator = ['-' '+']
+
+(* use the expr for fraction part *)
 let tail_expr = (exponent(operator)?digit+)
 
-let float_re = (digit+('.'))|(digit*('.')digit+tail_expr?)|((digit)tail_expr*)
+let float_re = (digit+('.'))|(digit*('.')digit+tail_expr?)|((digit)tail_expr)
 		(*
 			digit+('.')
 			| digit*('.')digit+tail_expr?
@@ -23,6 +30,6 @@ let float_re = (digit+('.'))|(digit*('.')digit+tail_expr?)|((digit)tail_expr*)
 		*)
 
 rule token = parse
-		'\n' 					{ NEWLINE }
+		'\n' 			   { NEWLINE }
 		| float_re as lit  { FLOAT(float_of_string lit) }
 
