@@ -4,7 +4,7 @@
 
 %%
 
-s : IF s        { 0 }
+s : IF s t      { 0 }
   | NULL        { 0 }
 t : /* empty */ { 0 }
   | ELSE s      { 0 }
