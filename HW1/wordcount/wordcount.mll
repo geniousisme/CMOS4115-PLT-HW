@@ -45,7 +45,6 @@ rule token = parse
     | ['a'-'z' 'A'-'Z']+ as word { Word(word) }
     | _ { token lexbuf }
 
-
 {
     module StringMap = Map.Make(String);;
 
