@@ -14,7 +14,8 @@
     use a similar technique but with a much larger radix.
 *)
 
-let subl lst1 lst2 =
+let subl1 lst1 lst2 =
+    (* this method will make the result exloded *)
     (* list_to_int: transfer int list into a int number first *)
     let list_to_int lst =
          List.fold_left (fun a b -> 10 * a + b) 0 lst
@@ -28,6 +29,24 @@ let subl lst1 lst2 =
     in
     (* subtract two int value first, then transfer the int value into list *)
     int_to_list (List.length lst1 - 1) ((list_to_int lst1) - (list_to_int lst2)) []
+;;
+
+let subl lst1 lst2 = 
+    let rec add_zero_before_list zero_count lst =
+        if zero_count = 0 then lst
+        else add_zero_before_list (zero_count - 1) (0 :: lst)
+    in
+    let lst_subl lst1 lst2 =
+        List.map2 (fun a b -> a - b) lst1 lst2
+    in
+    let build_lst lst =
+        let rec lst_scan res_lst carry = function
+            | [] -> res_lst 
+            | hd :: tl -> 
+                        if hd - carry < 0 then lst_scan ((hd - carry + 10) :: res_lst) 1 tl
+                        else lst_scan ((hd - carry) :: res_lst) 0 tl
+        in lst_scan [] 0 (List.rev lst)
+    in build_lst (lst_subl lst1 (add_zero_before_list ((List.length lst1) - (List.length lst2)) lst2))
 ;;
 
 let () =
